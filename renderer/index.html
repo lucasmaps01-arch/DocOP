@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DocOP - Upload & Scan</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="app">
+
+      <!-- Left icon sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-top">
+          <div class="brand-lockup" title="DocOP"><img src="../assests/docop-favi.png" alt=""><span>DocOP</span></div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button class="sidebar-icon active" id="uploadBtn" title="Upload">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          </button>
+          <button class="sidebar-icon" id="testBtn" title="Test Yourself">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </button>
+          <button class="sidebar-icon" id="checkBtn" title="Check Files">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          </button>
+          <button class="sidebar-icon" id="osceBtn" title="OSCE's">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 4.5c3-1 5.5 0 7.5 2 2-2 4.5-3 7.5-2 2 3 1 8-7.5 15C3.5 12.5 2.5 7.5 4.5 4.5z"/></svg>
+          </button>
+        </nav>
+
+        <button class="sidebar-icon sidebar-bottom" id="legacySettingsBtn" title="Settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </aside>
+
+      <!-- Main app body -->
+      <div class="app-body">
+
+        <header class="topbar">
+          <div class="brand">DocOP</div>
+          <div class="tabs">
+            <button class="tab active" id="diagnoseTab">Diagnose</button>
+            <button class="tab" id="myHeartTab"><span class="tab-dot"></span>My Heart</button>
+          </div>
+
+          <div class="search-wrap">
+            <input class="search-input" type="text" placeholder="Search...">
+            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+          <button id="settingsBtn" class="settings-btn" type="button" aria-label="Open settings">&#9881;</button>
+        </header>
+
+        <main id="homePage" class="main app-page active">
+
+          <section class="hero">
+            <div class="hero-inner">
+              <h1>Scan Smart. Study Sharper</h1>
+              <p class="lead">Upload files, scan objectives, and track your progress in one place.</p>
+              <div class="hero-buttons">
+                <button class="hero-btn hero-bubble" id="uploadBtnClassic" type="button" aria-label="Upload documents"><span class="hero-bubble-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m0 0-4 4m4-4 4 4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg></span><span class="hero-bubble-label">Upload</span></button>
+                <button class="hero-btn hero-bubble" id="testBtnClassic" type="button" aria-label="Test yourself"><span class="hero-bubble-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v5a6 6 0 0 0 12 0V3M6 3h3v5a3 3 0 0 0 6 0V3h3M12 14v7m-4 0h8"/></svg></span><span class="hero-bubble-label">Test Yourself</span></button>
+                <button class="hero-btn hero-bubble" id="checkBtnClassic" type="button" aria-label="Check files"><span class="hero-bubble-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 14l2 2 4-4"/></svg></span><span class="hero-bubble-label">Check Files</span></button>
+                <button class="hero-btn hero-bubble" id="osceBtnClassic" type="button" aria-label="OSCE practice"><span class="hero-bubble-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3l2-5 3 10 2-5h3l2-3 3 3M12 21S4 16.5 4 10a4 4 0 0 1 7-2.6A4 4 0 0 1 18 10c0 6.5-6 11-6 11Z"/></svg></span><span class="hero-bubble-label">OSCE Practice</span></button>
+                <button class="hero-btn hero-bubble" id="calendarBtnClassic" type="button" aria-label="Open calendar"><span class="hero-bubble-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-12 4h2m2 0h2m-6 3h2"/></svg></span><span class="hero-bubble-label">My Schedule</span></button>
+              </div>
+              <details class="upload-guide">
+                <summary>How to prepare a document for DocOP</summary>
+                <div class="upload-guide-content">
+                  <p><strong>Use a text-based PDF or DOCX</strong>—not a scan, photo, or handwritten page. Keep one topic per section, use clear headings, and add a heading named <strong>Learning Objectives</strong> or <strong>Objectives</strong> with bullet points. Avoid tables, multi-column layouts, and password protection.</p>
+                  <p>If a PDF is not searchable or is poorly structured, format it with an AI tool first. Review it for accuracy, remove confidential patient data, then save it as a DOCX or searchable PDF before uploading.</p>
+                  <div class="format-prompt"><code id="formatPromptText">Convert this study document into a clean, accurate, study-ready PDF for an exam-practice app. Preserve every fact and do not add new information. Use one clear topic heading per section, normal paragraphs and simple bullet lists only. Remove repeated headers and footers, page numbers, decorative formatting, tables, columns, and images. Create a section headed Learning Objectives with concise bullet points only when objectives are explicitly present in the source. Keep clinical terms, numbers, doses, warnings, and references exactly as written. Return the result as a downloadable, searchable PDF.</code><button id="copyFormatPromptBtn" class="text-btn" type="button">Copy prompt</button></div>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <aside class="right-panel">
+            <button id="collapseToggle" class="collapse-btn" type="button" aria-label="Toggle schedule">&lt;</button>
+            <h3 class="panel-title"><span class="panel-dot"></span>My Schedule</h3>
+            <div class="panel-card">
+
+              <div id="calendarWrap">
+                <div id="calendarHeader" class="calendar-header">
+                  <button id="prevMonth">◀</button>
+                  <div id="monthLabel"></div>
+                  <button id="nextMonth">▶</button>
+                </div>
+                <div id="calendar" class="calendar"></div>
+              </div>
+
+              <div class="upload-controls">
+                <button id="selectFiles">Select Files</button>
+              </div>
+
+              <div id="uploadsList" class="uploads-list"></div>
+            </div>
+          </aside>
+
+        </main>
+
+        <section id="calendarPage" class="workspace-page app-page"></section>
+
+        <section id="heartPage" class="workspace-page app-page"><div class="page-toolbar"><h1>My Heart</h1></div><div class="heart-animation-stage"><div><span class="tab-dot"></span><h2>My Heart</h2><p>Live ECG animation</p></div></div></section>
+        <section id="testPage" class="workspace-page app-page"><div class="page-toolbar"><button class="text-btn" type="button" data-route="home">Back</button><h1>Study Documents</h1></div><div class="study-controls"><input id="documentSearch" type="search" placeholder="Search inside uploaded document text"><button class="text-btn" type="button" id="allDocumentsBtn">Use All Documents</button></div><div id="searchResults" class="search-results"></div><div id="testDocuments" class="document-grid"></div></section>
+        <section id="questionsPage" class="workspace-page app-page"><div class="page-toolbar"><button class="text-btn" type="button" data-route="test">Back</button><h1 id="questionsTitle">Questions</h1><button class="text-btn toolbar-action" type="button" id="resetQuestionsBtn">Reset</button></div><div id="questionStatus" class="question-status"></div><div id="objectivesList" class="objectives-list"></div><div id="questionsList" class="questions-list"></div></section>
+        <section id="oscePage" class="workspace-page app-page"><div class="page-toolbar"><button class="text-btn" type="button" data-route="home">Back</button><h1>OSCE Practice</h1></div><div id="osceListView" class="osce-view"><div class="osce-generator"><h2>What would you like to practise?</h2><p>Enter a topic to create OSCE scenarios.</p><label class="osce-field">OSCE topic<input id="osceTopicInput" type="text" maxlength="180"></label><div id="osceDocumentPicker" class="osce-document-picker"></div><div class="osce-generator-actions"><button id="refreshOsceBtn" class="text-btn" type="button">Reset &amp; Refresh</button><button id="generateOsceBtn" class="primary-btn" type="button">Research Topic &amp; Generate</button></div></div><div id="osceStatus" class="question-status"></div><div id="osceStations" class="osce-station-grid"></div></div><div id="oscePlayerView" class="osce-view" hidden><div class="osce-player-header"><button id="exitOscePlayerBtn" class="text-btn" type="button">Back to Stations</button><div><h2 id="oscePlayerTitle"></h2></div><div id="osceTimer" class="osce-timer">15:00</div></div><section class="osce-panel"><h3>Candidate Brief</h3><p id="osceCandidateBrief"></p></section><div id="osceStartControls" class="osce-controls"><button id="startOsceBtn" class="primary-btn" type="button">Start Station</button></div><div id="osceActiveControls" class="osce-controls" hidden><button id="revealPatientBtn" class="text-btn" type="button">Reveal Patient Information</button><button id="finishOsceBtn" class="primary-btn" type="button">End Consultation &amp; Give Verdict</button></div><section id="oscePatientPanel" class="osce-panel" hidden><h3>Patient Information</h3><p id="oscePatientBrief"></p></section><section id="osceChatPanel" class="osce-panel" hidden><h3>Consultation</h3><div id="osceChatTranscript" class="osce-chat-transcript"></div><form id="osceChatForm" class="osce-chat-form"><input id="osceChatInput" type="text"><button class="primary-btn" type="submit">Send</button></form></section><section id="osceFinishPanel" class="osce-panel" hidden><h3>Give Your Verdict and Get Marked</h3><label class="osce-field">Your working diagnosis<textarea id="osceVerdictText" rows="3"></textarea></label><label class="osce-field">Anything else<textarea id="oscePerformanceText" rows="6"></textarea></label><button id="markOsceBtn" class="primary-btn" type="button">Mark My Verdict</button><div id="osceMarkResult" class="osce-mark-result"></div></section></div></section>
+
+
+        <div id="renameModal" class="modal" aria-hidden="true"><div class="modal-backdrop"></div><section class="modal-panel"><div class="modal-header"><h2>Rename Files</h2></div><form id="renameForm"><div id="renameList" class="rename-list"></div><div class="modal-actions"><button id="cancelRename" class="text-btn" type="button">Cancel</button><button class="primary-btn" type="submit">Upload</button></div></form></section></div>
+        <div id="filesModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><section class="modal-panel"><div class="modal-header"><h2>Uploaded Files</h2><button id="closeFilesModal" class="icon-btn" type="button">&times;</button></div><div id="filesModalList" class="modal-list"></div></section></div>
+        <div id="limitModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-limit-modal></div><section class="modal-panel"><div class="modal-header"><h2>Today's Limit Reached</h2><button id="closeLimitModal" class="icon-btn" type="button">&times;</button></div><p id="limitModalMessage"></p><div class="modal-actions"><button id="dismissLimitModal" class="primary-btn" type="button">Close</button></div></section></div>
+        <div id="osceUnavailableModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-osce-unavailable></div><section class="modal-panel"><div class="modal-header"><h2>OSCE Topic Search Unavailable</h2><button id="closeOsceUnavailableModal" class="icon-btn" type="button">&times;</button></div><p id="osceUnavailableMessage"></p><div class="modal-actions"><button id="dismissOsceUnavailableModal" class="primary-btn" type="button">Close</button></div></section></div>
+        <div id="deleteModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-delete-modal></div><section class="modal-panel"><div class="modal-header"><h2>Delete document?</h2><button id="closeDeleteModal" class="icon-btn" type="button">&times;</button></div><p>Delete <strong id="deleteDocumentName"></strong> from DocOP?</p><div class="modal-actions"><button id="cancelDeleteBtn" class="text-btn" type="button">Cancel</button><button id="confirmDeleteBtn" class="danger-btn" type="button">Delete document</button></div></section></div>
+        <div id="resetModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-reset-modal></div><section class="modal-panel"><div class="modal-header"><h2>Reset questions and answers?</h2><button id="closeResetModal" class="icon-btn" type="button">&times;</button></div><p>This will clear all saved questions and answers for this document.</p><div class="modal-actions"><button id="cancelResetBtn" class="text-btn" type="button">Cancel</button><button id="confirmResetBtn" class="primary-btn" type="button">Reset &amp; Generate</button></div></section></div>
+        <div id="calendarModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-calendar-modal></div><section class="modal-panel calendar-modal-panel"><div class="modal-header"><h2>My Schedule</h2><button id="closeCalendarModal" class="icon-btn" type="button" aria-label="Close calendar">&times;</button></div></section></div>
+        <div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-settings></div><section class="modal-panel settings-panel"><div class="modal-header"><h2>Settings</h2><button id="closeSettingsModal" class="icon-btn" type="button" aria-label="Close settings">&times;</button></div><div class="settings-tabs"><button id="appearanceTab" class="settings-tab active" type="button">Appearance</button><button id="termsTab" class="settings-tab" type="button">Terms &amp; Conditions</button></div><section id="appearancePanel" class="settings-content"><p class="appearance-note">Dark appearance is currently in use.</p><input type="radio" name="appTheme" value="dark" checked hidden></section><section id="termsPanel" class="settings-content terms-content" hidden><h3>Terms &amp; Conditions</h3><p>DocOP is an educational study tool for document review, revision questions, and simulated OSCE practice. It is not a medical device, healthcare provider, diagnostic service, or substitute for professional judgement, supervision, diagnosis, or treatment.</p><h4>Use of content</h4><p>You are responsible for ensuring that material you upload is accurate, lawful to use, and free of unnecessary personal or patient-identifying information. Always verify educational material against current trusted sources and local clinical guidance.</p><h4>AI-generated material</h4><p>Generated questions, explanations, simulations, and feedback may be incomplete or incorrect. They are for learning support only and must not be used as patient-specific advice or as the sole basis for clinical decisions.</p><h4>Privacy and storage</h4><p>Uploaded documents and saved learning progress are stored locally by the app unless a feature clearly states otherwise. Do not upload confidential patient records or sensitive personal data.</p><h4>Acceptance</h4><p>By using DocOP, you accept these terms and agree to use the app responsibly for educational purposes.</p></section></section></div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
