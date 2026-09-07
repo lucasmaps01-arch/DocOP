@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 require('dotenv').config();
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
@@ -31,8 +32,10 @@ const SUPPORTED_UPLOAD_EXTENSIONS = new Set(['.pdf', '.docx', '.txt', '.md']);
 const DAILY_LIMIT_MESSAGE = 'todays limit reached, come back tomorrow';
 const OSCE_TOPIC_DAILY_LIMIT = 5;
 const OSCE_TOPIC_DAILY_LIMIT_MESSAGE = 'You have reached today\'s limit of 5 topic-based OSCE generations. Come back tomorrow.';
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 let geminiClient = null;
+const pendingFileSelections = new Map();
 
 function readUploads() {
   try {
@@ -165,7 +168,14 @@ function getCloudflareAiConfig() {
     || process.env.CLOUDFLARE_WORKER_AI_TOKEN
     || process.env.WORKER_AI_TOKEN;
 
-  if (explicitUrl) return { url: explicitUrl, token };
+  if (explicitUrl) {
+    try {
+      if (new URL(explicitUrl).protocol !== 'https:') return null;
+    } catch (error) {
+      return null;
+    }
+    return { url: explicitUrl, token };
+  }
   if (accountId && token) {
     return {
       url: `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${CLOUDFLARE_AI_MODEL}`,
@@ -1274,22 +1284,34 @@ ipcMain.handle('choose-files', async () => {
   });
   if (res.canceled) return [];
   return res.filePaths.map(filePath => ({
-    path: filePath,
+    selectionId: (() => {
+      const selectionId = crypto.randomUUID();
+      pendingFileSelections.set(selectionId, filePath);
+      return selectionId;
+    })(),
     name: path.basename(filePath),
     extension: path.extname(filePath)
   }));
 });
 
-ipcMain.handle('save-uploaded-files', async (event, files) => {
+ipcMain.handle('save-uploaded-files', async (event, files, uploadDate) => {
   const selected = Array.isArray(files) ? files : [];
+  const requestedDate = /^\d{4}-\d{2}-\d{2}$/.test(String(uploadDate || ''))
+    ? new Date(`${uploadDate}T12:00:00`)
+    : new Date();
+  const savedDate = Number.isNaN(requestedDate.getTime()) ? new Date() : requestedDate;
+  const uploadedAt = savedDate.toISOString();
   const uploads = readUploads();
   const saved = [];
   let uploadNumber = nextUploadNumber(uploads);
   for (const file of selected) {
-    const sourcePath = file.path;
+    const sourcePath = pendingFileSelections.get(file?.selectionId);
+    pendingFileSelections.delete(file?.selectionId);
     if (!sourcePath || !fs.existsSync(sourcePath)) continue;
     const sourceExt = path.extname(sourcePath);
     if (!SUPPORTED_UPLOAD_EXTENSIONS.has(sourceExt.toLowerCase())) continue;
+    const sourceStats = fs.statSync(sourcePath);
+    if (!sourceStats.isFile() || sourceStats.size > MAX_UPLOAD_BYTES) continue;
     const requestedName = safeBaseName(file.name || path.basename(sourcePath));
     const copyPath = uniqueCopyPath(requestedName, sourceExt);
     fs.copyFileSync(sourcePath, copyPath);
@@ -1298,50 +1320,10 @@ ipcMain.handle('save-uploaded-files', async (event, files) => {
     const upload = {
       id: `${Date.now()}-${uploadNumber}-${path.basename(copyPath)}`,
       uploadNumber,
-      originalPath: sourcePath,
       path: copyPath,
       name: path.basename(copyPath),
-      uploadedAt: new Date().toISOString(),
+      uploadedAt,
       objectives,
-      text,
-      textLength: text.length,
-      readingStatus: readingStatus(text)
-    };
-    uploads.push(upload);
-    saved.push(upload);
-    uploadNumber += 1;
-  }
-  saveUploads(uploads);
-  return saved;
-});
-
-ipcMain.handle('select-files', async () => {
-  const res = await dialog.showOpenDialog({
-    title: 'Select files',
-    buttonLabel: 'Upload',
-    filters: [
-      { name: 'Supported study documents', extensions: ['pdf', 'docx', 'txt', 'md'] }
-    ],
-    properties: ['openFile', 'multiSelections']
-  });
-  if (res.canceled) return [];
-  const files = res.filePaths.map(filePath => ({ path: filePath, name: path.basename(filePath) }));
-  const uploads = readUploads();
-  const saved = [];
-  let uploadNumber = nextUploadNumber(uploads);
-  for (const file of files) {
-    if (!SUPPORTED_UPLOAD_EXTENSIONS.has(path.extname(file.path).toLowerCase())) continue;
-    const copyPath = uniqueCopyPath(file.name, path.extname(file.path));
-    fs.copyFileSync(file.path, copyPath);
-    const text = await extractText(copyPath);
-    const upload = {
-      id: `${Date.now()}-${uploadNumber}-${path.basename(copyPath)}`,
-      uploadNumber,
-      originalPath: file.path,
-      path: copyPath,
-      name: path.basename(copyPath),
-      uploadedAt: new Date().toISOString(),
-      objectives: findObjectives(text),
       text,
       textLength: text.length,
       readingStatus: readingStatus(text)
@@ -1394,15 +1376,25 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    icon: path.join(__dirname, 'assests', 'docop-favi.png'),
+    icon: path.join(__dirname, 'assests', 'main logo no bg.png'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      sandbox: true
     }
   });
   win.setMenuBarVisibility(false);
+  win.webContents.on('will-navigate', event => event.preventDefault());
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      if (new URL(url).protocol === 'https:') shell.openExternal(url);
+    } catch (error) {
+      console.warn('Blocked invalid external URL', error.message);
+    }
+    return { action: 'deny' };
+  });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 

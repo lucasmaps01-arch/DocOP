@@ -18,7 +18,6 @@ const osceBtnClassic = document.getElementById('osceBtnClassic');
 const calendarBtnClassic = document.getElementById('calendarBtnClassic');
 const calendarModal = document.getElementById('calendarModal');
 const closeCalendarModal = document.getElementById('closeCalendarModal');
-const selectFilesBtn = document.getElementById('selectFiles');
 const diagnoseTab = document.getElementById('diagnoseTab');
 const myHeartTab = document.getElementById('myHeartTab');
 
@@ -28,6 +27,7 @@ const closeFilesModal = document.getElementById('closeFilesModal');
 const renameModal = document.getElementById('renameModal');
 const renameForm = document.getElementById('renameForm');
 const renameList = document.getElementById('renameList');
+const uploadDateInput = document.getElementById('uploadDateInput');
 const cancelRename = document.getElementById('cancelRename');
 const limitModal = document.getElementById('limitModal');
 const limitModalMessage = document.getElementById('limitModalMessage');
@@ -52,6 +52,20 @@ const appearanceTab = document.getElementById('appearanceTab');
 const termsTab = document.getElementById('termsTab');
 const appearancePanel = document.getElementById('appearancePanel');
 const termsPanel = document.getElementById('termsPanel');
+const guideModal = document.getElementById('guideModal');
+const openGuideBtn = document.getElementById('openGuideBtn');
+const closeGuideModal = document.getElementById('closeGuideModal');
+const accountBtn = document.getElementById('accountBtn');
+const accountModal = document.getElementById('accountModal');
+const closeAccountModal = document.getElementById('closeAccountModal');
+const accountForm = document.getElementById('accountForm');
+const accountNameInput = document.getElementById('accountNameInput');
+const accountPictureInput = document.getElementById('accountPictureInput');
+const clearAccountBtn = document.getElementById('clearAccountBtn');
+const accountAvatar = document.getElementById('accountAvatar');
+const accountLabel = document.getElementById('accountLabel');
+const accountPreviewAvatar = document.getElementById('accountPreviewAvatar');
+const accountPreviewName = document.getElementById('accountPreviewName');
 
 const pages = {
   home: document.getElementById('homePage'),
@@ -102,6 +116,7 @@ const formatPromptText = document.getElementById('formatPromptText');
 
 const UPLOADS_STORAGE_KEY = 'docop.uploads';
 const THEME_STORAGE_KEY = 'docop.theme';
+const ACCOUNT_STORAGE_KEY = 'docop.account';
 
 let viewDate = new Date();
 let selectedDate = new Date();
@@ -118,17 +133,57 @@ let osceTimerId = null;
 let osceChatHistory = [];
 let oscePhase = 'idle';
 
+function loadAccountProfile() {
+  try {
+    return JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function renderAccountProfile(profile = {}) {
+  const name = String(profile.name || '').trim();
+  const initial = (name[0] || 'A').toUpperCase();
+  [accountAvatar, accountPreviewAvatar].forEach(element => {
+    element.textContent = profile.picture ? '' : initial;
+    element.style.backgroundImage = profile.picture ? `url("${profile.picture}")` : '';
+  });
+  accountLabel.textContent = name || 'Account';
+  accountPreviewName.textContent = name || 'Your name';
+  accountNameInput.value = name;
+}
+
+function readProfilePicture(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve('');
+      return;
+    }
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(String(reader.result || '')));
+    reader.addEventListener('error', reject);
+    reader.readAsDataURL(file);
+  });
+}
+
 function packAnswer(questionId) {
   return currentStudyPack?.answers?.[questionId] || null;
 }
 
 function applyTheme(theme) {
-  const selectedTheme = theme === 'dark' ? 'dark' : 'light';
+  const selectedTheme = theme === 'pink' ? 'pink' : 'dark';
   document.body.classList.toggle('theme-light', selectedTheme === 'light');
   document.body.classList.toggle('theme-dark', selectedTheme === 'dark');
+  document.body.classList.toggle('theme-pink', selectedTheme === 'pink');
   localStorage.setItem(THEME_STORAGE_KEY, selectedTheme);
+  appearancePanel.querySelector('.appearance-note').textContent = selectedTheme === 'pink'
+    ? 'Pink appearance is currently in use.'
+    : 'Dark appearance is currently in use.';
   document.querySelectorAll('input[name="appTheme"]').forEach(input => {
     input.checked = input.value === selectedTheme;
+    const label = input.closest('label');
+    const labelText = label?.querySelector('span');
+    if (labelText) labelText.textContent = input.value === 'pink' ? 'Pink' : 'Dark';
   });
 }
 
@@ -278,6 +333,7 @@ function getSelectedUpload() {
 function showPage(name) {
   for (const page of Object.values(pages)) page.classList.remove('active');
   pages[name].classList.add('active');
+  accountBtn.hidden = name !== 'home';
   diagnoseTab.classList.toggle('active', name !== 'heart');
   myHeartTab.classList.toggle('active', name === 'heart');
 }
@@ -532,6 +588,7 @@ async function deleteUpload(uploadId) {
 
 function openRenameModal(files) {
   renameList.innerHTML = '';
+  uploadDateInput.value = startOfDayISO(selectedDate);
   for (const file of files) {
     const row = document.createElement('label');
     row.className = 'rename-row';
@@ -540,7 +597,7 @@ function openRenameModal(files) {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = file.name;
-    input.dataset.path = file.path;
+    input.dataset.selectionId = file.selectionId;
     input.dataset.originalName = file.name;
     row.appendChild(caption);
     row.appendChild(input);
@@ -1087,6 +1144,37 @@ closeSettingsModal.addEventListener('click', closeSettings);
 settingsModal.addEventListener('click', event => {
   if (event.target.hasAttribute('data-close-settings')) closeSettings();
 });
+openGuideBtn.addEventListener('click', () => {
+  guideModal.setAttribute('aria-hidden', 'false');
+  closeGuideModal.focus();
+});
+closeGuideModal.addEventListener('click', () => guideModal.setAttribute('aria-hidden', 'true'));
+guideModal.addEventListener('click', event => {
+  if (event.target.hasAttribute('data-close-guide')) guideModal.setAttribute('aria-hidden', 'true');
+});
+accountBtn.addEventListener('click', () => {
+  renderAccountProfile(loadAccountProfile());
+  accountModal.setAttribute('aria-hidden', 'false');
+  closeAccountModal.focus();
+});
+closeAccountModal.addEventListener('click', () => accountModal.setAttribute('aria-hidden', 'true'));
+accountModal.addEventListener('click', event => {
+  if (event.target.hasAttribute('data-close-account')) accountModal.setAttribute('aria-hidden', 'true');
+});
+accountForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  const current = loadAccountProfile();
+  const picture = accountPictureInput.files[0] ? await readProfilePicture(accountPictureInput.files[0]) : (current.picture || '');
+  const profile = { name: accountNameInput.value.trim(), picture };
+  localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(profile));
+  renderAccountProfile(profile);
+  accountModal.setAttribute('aria-hidden', 'true');
+});
+clearAccountBtn.addEventListener('click', () => {
+  localStorage.removeItem(ACCOUNT_STORAGE_KEY);
+  accountPictureInput.value = '';
+  renderAccountProfile();
+});
 appearanceTab.addEventListener('click', () => setSettingsTab('appearance'));
 termsTab.addEventListener('click', () => setSettingsTab('terms'));
 document.querySelectorAll('input[name="appTheme"]').forEach(input => {
@@ -1107,10 +1195,10 @@ cancelRename.addEventListener('click', () => resolveRenameModal(null));
 renameForm.addEventListener('submit', event => {
   event.preventDefault();
   const files = Array.from(renameList.querySelectorAll('input')).map(input => ({
-    path: input.dataset.path,
+    selectionId: input.dataset.selectionId,
     name: input.value.trim() || input.dataset.originalName
   }));
-  resolveRenameModal(files);
+  resolveRenameModal({ files, uploadDate: uploadDateInput.value });
 });
 
 document.addEventListener('keydown', event => {
@@ -1133,10 +1221,11 @@ uploadBtn.addEventListener('click', async () => {
     if (!selected.length) return;
     const renamed = await openRenameModal(selected);
     if (!renamed) return;
-    const uploaded = await window.api.saveUploadedFiles(renamed);
+    const uploaded = await window.api.saveUploadedFiles(renamed.files, renamed.uploadDate);
     if (!uploaded.length) return;
     const allUploads = mergeStoredUploads(uploaded);
-    refreshUploadsFor(startOfDayISO(selectedDate));
+    selectedDate = new Date(`${renamed.uploadDate}T12:00:00`);
+    refreshUploadsFor(renamed.uploadDate);
     renderCalendar();
     openFilesModal(allUploads);
   } finally {
@@ -1144,7 +1233,6 @@ uploadBtn.addEventListener('click', async () => {
   }
 });
 
-selectFilesBtn.addEventListener('click', () => uploadBtn.click());
 uploadBtnClassic.addEventListener('click', () => launchBubble(uploadBtnClassic, () => uploadBtn.click()));
 testBtnClassic.addEventListener('click', () => launchBubble(testBtnClassic, () => testBtn.click()));
 checkBtnClassic.addEventListener('click', () => launchBubble(checkBtnClassic, () => checkBtn.click()));
@@ -1306,7 +1394,8 @@ document.getElementById('markOsceBtn').addEventListener('click', async () => {
 });
 
 async function initializeUploads() {
-  applyTheme('dark');
+  applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || 'dark');
+  renderAccountProfile(loadAccountProfile());
   selectedDate = new Date();
   viewDate = new Date();
   const existingUploads = await window.api.getUploads();

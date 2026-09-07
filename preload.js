@@ -2,9 +2,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
   chooseFiles: () => ipcRenderer.invoke('choose-files'),
-  saveUploadedFiles: (files) => ipcRenderer.invoke('save-uploaded-files', files),
+  saveUploadedFiles: (files, uploadDate) => ipcRenderer.invoke('save-uploaded-files', files, uploadDate),
   deleteUpload: (uploadId) => ipcRenderer.invoke('delete-upload', uploadId),
-  selectFiles: () => ipcRenderer.invoke('select-files'),
   getUploads: () => ipcRenderer.invoke('get-uploads'),
   getUploadsForDate: (dateStr) => ipcRenderer.invoke('uploads-for-date', dateStr),
   generateStudyPack: (uploadId, mode, force) => ipcRenderer.invoke('generate-study-pack', uploadId, mode, force),
