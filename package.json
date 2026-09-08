@@ -5,7 +5,9 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "cross-env NODE_ENV=development electron ."
+    "dev": "cross-env NODE_ENV=development electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win"
   },
   "keywords": [],
   "author": "",
@@ -14,9 +16,55 @@
     "@google/genai": "^2.21.0",
     "cross-env": "^7.0.3",
     "dotenv": "^17.4.2",
-    "electron": "44.2.0",
     "electron-reload": "^1.5.0",
     "mammoth": "^1.4.16",
     "pdf-parse": "^1.1.1"
+  },
+  "build": {
+    "appId": "com.docop.app",
+    "productName": "DocOP",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assests/**/*",
+      "package.json",
+      "!**/.env",
+      "!**/.env.*"
+    ],
+    "extraResources": [
+      {
+        "from": ".env",
+        "to": ".env"
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assests/main logo no bg.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "devDependencies": {
+    "electron": "44.2.0",
+    "electron-builder": "^26.15.3"
   }
 }

@@ -2,7 +2,11 @@ const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron')
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-require('dotenv').config();
+const envCandidates = app.isPackaged
+  ? [path.join(process.resourcesPath, '.env'), path.join(path.dirname(process.execPath), '.env')]
+  : [path.join(__dirname, '.env')];
+const envPath = envCandidates.find(candidate => fs.existsSync(candidate)) || envCandidates[0];
+require('dotenv').config({ path: envPath });
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const { GoogleGenAI } = require('@google/genai');
