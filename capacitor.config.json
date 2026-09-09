@@ -1,0 +1,8 @@
+{
+  "appId": "com.docop.app",
+  "appName": "DocOP",
+  "webDir": "mobile-web",
+  "server": {
+    "androidScheme": "https"
+  }
+}

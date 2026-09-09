@@ -331,8 +331,27 @@ function getSelectedUpload() {
 }
 
 function showPage(name) {
-  for (const page of Object.values(pages)) page.classList.remove('active');
-  pages[name].classList.add('active');
+  const currentPageName = Object.keys(pages).find(key => pages[key].classList.contains('active'));
+  const nextPage = pages[name];
+
+  if (!nextPage || nextPage === pages[currentPageName]) {
+    return;
+  }
+
+  if (currentPageName && pages[currentPageName]) {
+    pages[currentPageName].classList.add('is-exiting');
+    window.setTimeout(() => {
+      pages[currentPageName].classList.remove('active', 'is-exiting');
+    }, 220);
+  }
+
+  nextPage.classList.remove('is-exiting');
+  nextPage.classList.add('active');
+  nextPage.style.animation = 'none';
+  requestAnimationFrame(() => {
+    nextPage.style.animation = '';
+  });
+
   accountBtn.hidden = name !== 'home';
   diagnoseTab.classList.toggle('active', name !== 'heart');
   myHeartTab.classList.toggle('active', name === 'heart');

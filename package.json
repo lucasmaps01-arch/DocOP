@@ -7,18 +7,25 @@
     "start": "electron .",
     "dev": "cross-env NODE_ENV=development electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder --win"
+    "dist": "electron-builder --win",
+    "mobile:prepare": "node scripts/prepare-mobile.js",
+    "mobile:sync": "npm run mobile:prepare && npx cap sync android",
+    "android:open": "npm run mobile:sync && npx cap open android"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
     "@google/genai": "^2.21.0",
     "cross-env": "^7.0.3",
     "dotenv": "^17.4.2",
     "electron-reload": "^1.5.0",
     "mammoth": "^1.4.16",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^6.3.289"
   },
   "build": {
     "appId": "com.docop.app",
@@ -46,14 +53,18 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
-      "icon": "assests/main logo no bg.png"
+      "icon": "assests/docop-favi.png"
     },
     "nsis": {
       "oneClick": false,

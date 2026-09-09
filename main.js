@@ -1378,8 +1378,10 @@ ipcMain.handle('osce-patient-chat', (event, payload) => oscePatientChat(payload)
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 414,
+    height: 896,
+    minWidth: 360,
+    minHeight: 640,
     icon: path.join(__dirname, 'assests', 'main logo no bg.png'),
     autoHideMenuBar: true,
     webPreferences: {
