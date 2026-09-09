@@ -339,12 +339,13 @@ function showPage(name) {
   }
 
   const prevPage = currentPageName ? pages[currentPageName] : null;
+
   if (prevPage) {
     prevPage.classList.remove('active');
     prevPage.classList.add('is-exiting');
     window.setTimeout(() => {
       prevPage.classList.remove('is-exiting');
-    }, 240);
+    }, 260);
   }
 
   nextPage.classList.remove('is-exiting');

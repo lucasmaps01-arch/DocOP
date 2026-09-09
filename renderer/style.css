@@ -465,11 +465,9 @@ body{
 }
 
 /* ---------- Restored application screens, dialogs, and My Heart view ---------- */
-.app-page{grid-area:1/1;display:flex;visibility:hidden;opacity:0;transform:translate3d(0,8px,0);will-change:transform,opacity;backface-visibility:hidden;transition:opacity var(--motion-duration-base) var(--motion-ease),transform var(--motion-duration-base) var(--motion-ease),visibility var(--motion-duration-base);pointer-events:none}
-.app-page.active{visibility:visible;opacity:1;transform:translate3d(0,0,0);pointer-events:auto;animation:page-enter var(--motion-duration-base) var(--motion-ease) both}
-.app-page.is-exiting{visibility:visible;opacity:0;transform:translate3d(0,-8px,0);pointer-events:none;animation:page-exit var(--motion-duration-fast) var(--motion-ease) both}
-@keyframes page-enter{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-@keyframes page-exit{from{opacity:1;transform:translate3d(0,0,0)}to{opacity:0;transform:translate3d(0,-6px,0)}}
+.app-page{grid-area:1/1;display:flex;visibility:hidden;opacity:0;transform:none;will-change:opacity;backface-visibility:hidden;transition:opacity 260ms ease, visibility 0s linear 260ms;pointer-events:none;position:relative;z-index:0}
+.app-page.active{visibility:visible;opacity:1;pointer-events:auto;transition:opacity 260ms ease, visibility 0s linear 0s;z-index:1}
+.app-page.is-exiting{visibility:visible;opacity:0;pointer-events:none;transition:opacity 260ms ease, visibility 0s linear 0s;z-index:0}
 @media (prefers-reduced-motion:reduce){.app-page,.app-page.active,.app-page.is-exiting,.hero-btn,.text-btn,.primary-btn,.danger-btn,.icon-btn,.event-card,.document-tile,.question-card,.osce-station-card,.osce-generator,.modal-panel,.panel-card,.settings-tab,.sidebar-icon{animation:none!important;transition:none!important}}.workspace-page{flex:1;flex-direction:column;overflow:auto;padding:4px 2px 12px}
 .page-toolbar{display:flex;align-items:center;gap:12px;margin:0 0 18px}
 .page-toolbar h1{margin:0;font-size:24px;letter-spacing:-.4px}.toolbar-action{margin-left:auto}
