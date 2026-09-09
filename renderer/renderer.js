@@ -338,19 +338,17 @@ function showPage(name) {
     return;
   }
 
-  if (currentPageName && pages[currentPageName]) {
-    pages[currentPageName].classList.add('is-exiting');
+  const prevPage = currentPageName ? pages[currentPageName] : null;
+  if (prevPage) {
+    prevPage.classList.remove('active');
+    prevPage.classList.add('is-exiting');
     window.setTimeout(() => {
-      pages[currentPageName].classList.remove('active', 'is-exiting');
-    }, 220);
+      prevPage.classList.remove('is-exiting');
+    }, 240);
   }
 
   nextPage.classList.remove('is-exiting');
   nextPage.classList.add('active');
-  nextPage.style.animation = 'none';
-  requestAnimationFrame(() => {
-    nextPage.style.animation = '';
-  });
 
   accountBtn.hidden = name !== 'home';
   diagnoseTab.classList.toggle('active', name !== 'heart');
