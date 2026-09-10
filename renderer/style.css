@@ -848,6 +848,9 @@ body.theme-pink #homePage #uploadBtnClassic{background:rgba(169,79,107,.12)!impo
 /* Keep Android WebView layers cheap: opacity and transforms can stay on the compositor. */
 @media (hover:none) and (pointer:coarse){
   html,body{overscroll-behavior:none}
+  /* The grid overlays pages in the first track. Keep the header out of that
+     flow so it remains at the real top instead of being placed after Home. */
+  .topbar{position:absolute!important;inset:0 0 auto!important;z-index:12!important}
   .app-page{contain:layout paint;backface-visibility:hidden}
   #homePage .hero{isolation:isolate}
   #homePage .hero::before{mix-blend-mode:normal!important;opacity:.2!important}
