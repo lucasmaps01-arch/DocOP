@@ -859,4 +859,11 @@ body.theme-pink #homePage #uploadBtnClassic{background:rgba(169,79,107,.12)!impo
   #homePage .hero{isolation:isolate}
   #homePage .hero::before{mix-blend-mode:normal!important;opacity:.2!important}
   .workspace-page{-webkit-overflow-scrolling:touch}
+  /* Keep touch feedback restrained: no Android flash or coloured launch wash. */
+  button,a,[role="button"]{-webkit-tap-highlight-color:transparent}
+  #homePage .hero-bubble,
+  #homePage #uploadBtnClassic,
+  #homePage .hero-bubble:hover,
+  #homePage .hero-bubble:focus-visible,
+  #homePage .hero-bubble.is-launching{transform:translate3d(0,0,0)!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important;outline:none!important}
 }
