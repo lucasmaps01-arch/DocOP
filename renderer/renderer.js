@@ -335,7 +335,7 @@ let pageTransitionId = 0;
 const usesMobileMotion = () => window.Capacitor?.isNativePlatform?.() === true
   || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
-function showPage(name) {
+function showPage(name, { fromHistory = false } = {}) {
   const currentPageName = Object.keys(pages).find(key => pages[key].classList.contains('active'));
   const nextPage = pages[name];
 
@@ -392,6 +392,10 @@ function showPage(name) {
   accountBtn.hidden = name !== 'home';
   diagnoseTab.classList.toggle('active', name !== 'heart');
   myHeartTab.classList.toggle('active', name === 'heart');
+
+  if (!fromHistory) {
+    window.history.pushState({ docopPage: name }, '', `#${name}`);
+  }
 }
 
 function launchBubble(button, action) {
@@ -1337,6 +1341,10 @@ resetQuestionsBtn.addEventListener('click', async () => {
 document.querySelectorAll('[data-route]').forEach(button => {
   button.addEventListener('click', () => {
     const route = button.dataset.route;
+    if (usesMobileMotion()) {
+      window.history.back();
+      return;
+    }
     if (route === 'test') renderTestDocuments();
     showPage(route);
   });
@@ -1450,6 +1458,15 @@ document.getElementById('markOsceBtn').addEventListener('click', async () => {
 });
 
 async function initializeUploads() {
+  if (usesMobileMotion()) {
+    window.history.replaceState({ docopPage: 'home' }, '', '#home');
+    window.addEventListener('popstate', event => {
+      const route = event.state?.docopPage;
+      if (!route || !pages[route]) return;
+      if (route === 'test') renderTestDocuments();
+      showPage(route, { fromHistory: true });
+    });
+  }
   applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || 'dark');
   renderAccountProfile(loadAccountProfile());
   selectedDate = new Date();
