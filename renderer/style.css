@@ -653,6 +653,96 @@ body.theme-pink #filesModal .modal-panel{background:#f1e4df;border:1px solid #cf
 body.theme-pink #filesModal .modal-header{border-radius:20px 20px 0 0}
 body.theme-pink #filesModal .modal-list{width:100%;padding:10px 0 0;overflow-x:hidden}
 body.theme-pink #filesModal .modal-file{width:100%;min-width:0;min-height:60px;background:#f7eeea;border:1px solid #d6b9bb;border-radius:10px;padding:12px 14px}
+
+/* Android/touch motion system: composited transforms avoid WebView re-layout during navigation. */
+@media (hover:none) and (pointer:coarse){
+:root{--page-motion-duration:380ms;--surface-motion-duration:220ms}
+#homePage.main,#homePage.main.active{display:flex!important}
+:root{
+  --page-motion-duration:380ms;
+  --page-motion-ease:cubic-bezier(.22,1,.36,1);
+  --surface-motion-duration:220ms;
+  --surface-motion-ease:cubic-bezier(.2,.8,.2,1);
+}
+
+.app-page{
+  visibility:hidden;
+  opacity:0;
+  transform:translate3d(0,12px,0) scale(.992);
+  transform-origin:center center;
+  will-change:opacity,transform;
+  pointer-events:none;
+  transition:opacity var(--page-motion-duration) var(--page-motion-ease),transform var(--page-motion-duration) var(--page-motion-ease),visibility 0s linear var(--page-motion-duration);
+}
+.app-page.active{
+  visibility:visible;
+  opacity:1;
+  transform:translate3d(0,0,0) scale(1);
+  pointer-events:auto;
+  z-index:2;
+  transition:opacity var(--page-motion-duration) var(--page-motion-ease),transform var(--page-motion-duration) var(--page-motion-ease),visibility 0s linear 0s;
+}
+.app-page.is-entering,
+.app-page.is-exiting{
+  visibility:visible;
+  pointer-events:none;
+  z-index:1;
+  transition:opacity var(--page-motion-duration) var(--page-motion-ease),transform var(--page-motion-duration) var(--page-motion-ease),visibility 0s linear 0s;
+}
+.app-page.is-entering{opacity:0}
+.app-page.is-entering.is-forward{transform:translate3d(32px,0,0) scale(.992)}
+.app-page.is-entering.is-backward{transform:translate3d(-32px,0,0) scale(.992)}
+.app-page.is-exiting{opacity:0}
+.app-page.is-exiting.is-forward{transform:translate3d(-20px,0,0) scale(.996)}
+.app-page.is-exiting.is-backward{transform:translate3d(20px,0,0) scale(.996)}
+
+/* Let the destination settle before its content follows; no layout properties are animated. */
+.app-page.active .page-toolbar,
+.app-page.active .study-controls,
+.app-page.active .osce-view,
+.app-page.active .heart-animation-stage{animation:page-content-settle 420ms var(--page-motion-ease) both}
+.app-page.active .study-controls{animation-delay:35ms}
+.app-page.active .osce-view,.app-page.active .heart-animation-stage{animation-delay:55ms}
+#homePage.active .hero-inner{animation:page-content-settle 460ms var(--page-motion-ease) both}
+@keyframes page-content-settle{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+
+/* Modals stay mounted during their fade so both opening and closing are gentle. */
+.modal{
+  display:flex;
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity var(--surface-motion-duration) var(--surface-motion-ease),visibility 0s linear var(--surface-motion-duration);
+}
+.modal[aria-hidden="false"]{
+  display:flex;
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+  transition:opacity var(--surface-motion-duration) var(--surface-motion-ease),visibility 0s linear 0s;
+}
+.modal-backdrop{opacity:0;transition:opacity var(--surface-motion-duration) var(--surface-motion-ease)}
+.modal[aria-hidden="false"] .modal-backdrop{opacity:1}
+.modal-panel{
+  opacity:0;
+  transform:translate3d(0,16px,0) scale(.985);
+  transition:opacity var(--surface-motion-duration) var(--surface-motion-ease),transform var(--surface-motion-duration) var(--surface-motion-ease),box-shadow var(--surface-motion-duration) var(--surface-motion-ease);
+}
+.modal[aria-hidden="false"] .modal-panel{opacity:1;transform:translate3d(0,0,0) scale(1);animation:none}
+
+/* A calm response to taps and keyboard focus feels more natural than the former sharp jumps. */
+.hero-btn,.text-btn,.primary-btn,.danger-btn,.icon-btn,.sidebar-icon,.event-card,.document-tile,.question-card,.osce-station-card,.osce-generator,.osce-panel{
+  transition-timing-function:var(--surface-motion-ease);
+}
+.hero-btn:active,.text-btn:active,.primary-btn:active,.danger-btn:active,.icon-btn:active,.sidebar-icon:active{
+  transform:translate3d(0,0,0) scale(.975)!important;
+  transition-duration:80ms;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .app-page,.app-page.active,.app-page.is-entering,.app-page.is-exiting,.modal,.modal-backdrop,.modal-panel{animation:none!important;transition:none!important;transform:none!important}
+}
+}
 body.theme-pink #filesModal .modal-file h3{min-width:0;color:#000}
 #filesModal .modal-panel{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important;overflow:visible!important}
 #filesModal .modal-header{background:transparent!important;border-bottom:1px solid var(--border);border-radius:0!important;padding:0 0 10px!important}
@@ -754,3 +844,12 @@ body.theme-pink .upload-date-field input{background:#ead7d4;border-color:#cfaeb2
 body.theme-pink #homePage .hero-buttons{background:rgba(255,250,247,.94)!important;border-color:#d6b9bb!important;box-shadow:none!important}
 body.theme-pink #homePage .hero-bubble:hover,body.theme-pink #homePage .hero-bubble:focus-visible,body.theme-pink #homePage .hero-bubble.is-launching{background:rgba(169,79,107,.12)!important}
 body.theme-pink #homePage #uploadBtnClassic{background:rgba(169,79,107,.12)!important}
+
+/* Keep Android WebView layers cheap: opacity and transforms can stay on the compositor. */
+@media (hover:none) and (pointer:coarse){
+  html,body{overscroll-behavior:none}
+  .app-page{contain:layout paint;backface-visibility:hidden}
+  #homePage .hero{isolation:isolate}
+  #homePage .hero::before{mix-blend-mode:normal!important;opacity:.2!important}
+  .workspace-page{-webkit-overflow-scrolling:touch}
+}

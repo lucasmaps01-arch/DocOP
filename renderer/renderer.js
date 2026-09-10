@@ -330,6 +330,11 @@ function getSelectedUpload() {
   return loadStoredUploads().find(upload => upload.id === selectedUploadId) || null;
 }
 
+const PAGE_TRANSITION_MS = 380;
+let pageTransitionId = 0;
+const usesMobileMotion = () => window.Capacitor?.isNativePlatform?.() === true
+  || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
 function showPage(name) {
   const currentPageName = Object.keys(pages).find(key => pages[key].classList.contains('active'));
   const nextPage = pages[name];
@@ -340,16 +345,49 @@ function showPage(name) {
 
   const prevPage = currentPageName ? pages[currentPageName] : null;
 
-  if (prevPage) {
-    prevPage.classList.remove('active');
-    prevPage.classList.add('is-exiting');
-    window.setTimeout(() => {
-      prevPage.classList.remove('is-exiting');
-    }, 260);
+  // Keep the established desktop transition untouched. The staged transform
+  // path below is tailored to the Android WebView compositor.
+  if (!usesMobileMotion()) {
+    if (prevPage) {
+      prevPage.classList.remove('active');
+      prevPage.classList.add('is-exiting');
+      window.setTimeout(() => prevPage.classList.remove('is-exiting'), 260);
+    }
+    nextPage.classList.remove('is-exiting');
+    nextPage.classList.add('active');
+    accountBtn.hidden = name !== 'home';
+    diagnoseTab.classList.toggle('active', name !== 'heart');
+    myHeartTab.classList.toggle('active', name === 'heart');
+    return;
   }
 
-  nextPage.classList.remove('is-exiting');
-  nextPage.classList.add('active');
+  const transitionId = ++pageTransitionId;
+  const pageOrder = ['home', 'calendar', 'heart', 'test', 'questions', 'osce'];
+  const movingForward = !currentPageName || pageOrder.indexOf(name) >= pageOrder.indexOf(currentPageName);
+  const directionClass = movingForward ? 'is-forward' : 'is-backward';
+
+  // Start the incoming page in a painted, off-screen state before changing its
+  // final state. This prevents the abrupt display/opacity jump that occurred
+  // when navigating from the landing screen.
+  nextPage.classList.remove('active', 'is-exiting', 'is-forward', 'is-backward');
+  nextPage.classList.add('is-entering', directionClass);
+  void nextPage.offsetWidth;
+
+  if (prevPage) {
+    prevPage.classList.remove('active', 'is-entering', 'is-forward', 'is-backward');
+    prevPage.classList.add('is-exiting', directionClass);
+    window.setTimeout(() => {
+      if (transitionId === pageTransitionId) {
+        prevPage.classList.remove('is-exiting', 'is-forward', 'is-backward');
+      }
+    }, PAGE_TRANSITION_MS);
+  }
+
+  window.requestAnimationFrame(() => {
+    if (transitionId !== pageTransitionId) return;
+    nextPage.classList.remove('is-entering');
+    nextPage.classList.add('active');
+  });
 
   accountBtn.hidden = name !== 'home';
   diagnoseTab.classList.toggle('active', name !== 'heart');
@@ -361,7 +399,7 @@ function launchBubble(button, action) {
   window.setTimeout(() => {
     action();
     button.classList.remove('is-launching');
-  }, 140);
+  }, usesMobileMotion() ? 90 : 140);
 }
 
 function openCalendarModal() {
