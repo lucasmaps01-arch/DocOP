@@ -851,6 +851,10 @@ body.theme-pink #homePage #uploadBtnClassic{background:rgba(169,79,107,.12)!impo
   /* The grid overlays pages in the first track. Keep the header out of that
      flow so it remains at the real top instead of being placed after Home. */
   .topbar{position:absolute!important;inset:0 0 auto!important;z-index:12!important}
+  /* The global brand bar belongs to the landing screen only. Other pages use
+     their own toolbar and therefore need the full top edge. */
+  body.is-home-page .topbar{display:flex!important;background:var(--app-bg)!important}
+  body:not(.is-home-page) .topbar{display:none!important}
   .app-page{contain:layout paint;backface-visibility:hidden}
   #homePage .hero{isolation:isolate}
   #homePage .hero::before{mix-blend-mode:normal!important;opacity:.2!important}

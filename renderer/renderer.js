@@ -355,6 +355,7 @@ function showPage(name, { fromHistory = false } = {}) {
     }
     nextPage.classList.remove('is-exiting');
     nextPage.classList.add('active');
+    document.body.classList.toggle('is-home-page', name === 'home');
     accountBtn.hidden = name !== 'home';
     diagnoseTab.classList.toggle('active', name !== 'heart');
     myHeartTab.classList.toggle('active', name === 'heart');
@@ -389,6 +390,7 @@ function showPage(name, { fromHistory = false } = {}) {
     nextPage.classList.add('active');
   });
 
+  document.body.classList.toggle('is-home-page', name === 'home');
   accountBtn.hidden = name !== 'home';
   diagnoseTab.classList.toggle('active', name !== 'heart');
   myHeartTab.classList.toggle('active', name === 'heart');
@@ -1458,6 +1460,7 @@ document.getElementById('markOsceBtn').addEventListener('click', async () => {
 });
 
 async function initializeUploads() {
+  document.body.classList.add('is-home-page');
   if (usesMobileMotion()) {
     window.history.replaceState({ docopPage: 'home' }, '', '#home');
     window.addEventListener('popstate', event => {
