@@ -5,16 +5,14 @@ if (-not $root) { $root = Get-Location }
 $projectDir = Resolve-Path (Join-Path $root "..")
 
 $logoFile = Join-Path $projectDir "assests/main logo.png"
-$logoNoBgFile = Join-Path $projectDir "assests/main logo no bg.png"
 $resDir = Join-Path $projectDir "android/app/src/main/res"
 
-if (-not (Test-Path $logoFile) -or -not (Test-Path $logoNoBgFile)) {
-    Write-Error "Logo files not found in assests directory."
+if (-not (Test-Path $logoFile)) {
+    Write-Error "main logo.png was not found in the assests directory."
     exit 1
 }
 
 $imgFull = [System.Drawing.Bitmap]::FromFile($logoFile)
-$imgNoBg = [System.Drawing.Bitmap]::FromFile($logoNoBgFile)
 
 function Create-Resized-Bitmap {
     param(
@@ -83,8 +81,8 @@ foreach ($d in $densities) {
     $icRound.Save($icRoundPath, [System.Drawing.Imaging.ImageFormat]::Png)
     $icRound.Dispose()
 
-    # 3. Adaptive Foreground Icon (ic_launcher_foreground.png) - 66.6% safe zone scale
-    $icFore = Create-Resized-Bitmap -sourceImg $imgNoBg -width $d.ForegroundSize -height $d.ForegroundSize -scaleFactor 0.666
+    # 3. Adaptive Foreground Icon - use the same requested main logo asset.
+    $icFore = Create-Resized-Bitmap -sourceImg $imgFull -width $d.ForegroundSize -height $d.ForegroundSize -scaleFactor 0.666
     $icForePath = Join-Path $targetFolder "ic_launcher_foreground.png"
     $icFore.Save($icForePath, [System.Drawing.Imaging.ImageFormat]::Png)
     $icFore.Dispose()
@@ -93,6 +91,5 @@ foreach ($d in $densities) {
 }
 
 $imgFull.Dispose()
-$imgNoBg.Dispose()
 
 Write-Host "All Android icons generated successfully!"
